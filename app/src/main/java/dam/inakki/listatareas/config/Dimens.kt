@@ -12,6 +12,7 @@ object AppPaddings {
     val Medium: Dp = 12.dp
     val Large: Dp = 16.dp
     val ExtraLarge: Dp = 20.dp
+    val SuperLarge: Dp = 75.dp
 } // AppDimens
 
 object AppRoundedCorner {

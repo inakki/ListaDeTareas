@@ -4,25 +4,31 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import dam.inakki.listatareas.config.AppRoundedCorner
+import dam.inakki.listatareas.data.TaskManager
+import dam.inakki.listatareas.models.Task
+import kotlinx.coroutines.launch
 
 @Composable
 fun MenuTaskCard(
     showMenu: Boolean,
+    task: Task,
+    tasks: TaskManager,
     onChangeMenu: () -> Unit,
-    onSaveEdit: () -> Unit,
-    onCancel: () -> Unit,
     onClickDelete: () -> Unit,
-    content: @Composable () -> Unit,
-    changeValueInputText: () -> Unit
+    onError: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
     var showDialog: Boolean by remember { mutableStateOf(false) }
+    var editInputText: String by remember { mutableStateOf("") }
 
     DropdownMenu(
         expanded = showMenu,
@@ -51,11 +57,29 @@ fun MenuTaskCard(
 
     if(showDialog) {
         DialogEdit(
-            onSave = onSaveEdit,
-            onCancel = onCancel,
-            onChangeDialog = { showDialog = false },
-            content = content,
-            changeValueInputText = changeValueInputText
+            onSave = {
+                if(editInputText.isNotBlank()){
+                    coroutineScope.launch {
+                        tasks.updateTask(task.copy(name = editInputText))
+                        editInputText = ""
+                    }
+                }
+                else onError()
+                showDialog = false
+            },
+            onClose = {
+                showDialog = false
+                editInputText = ""
+            },
+            content = {
+                OutlinedTextField(
+                    value = editInputText,
+                    onValueChange = { editInputText = it },
+                    label = { Text(text = "Escribe el nuevo nombre:") },
+                    maxLines = 3
+                ) // OutlinedTextField
+            }, // content
+            changeValueInputText = { editInputText = task.name }
         )
     }
 } // MenuTaskCard

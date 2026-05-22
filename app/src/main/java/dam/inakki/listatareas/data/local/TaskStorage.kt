@@ -5,7 +5,9 @@ import dam.inakki.listatareas.models.Task
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
-
+/* ¡ ¡ ¡ EN DESUSO ! ! !
+* Al implementar la Room con SQLite la serialización se queda en desuso
+* */
 fun saveData(context: Context, taskList: MutableList<Task>) {
     val jsonText = Json.encodeToString(taskList)
 
@@ -28,5 +30,5 @@ fun loadData(context: Context): MutableList<Task> {
         Json.decodeFromString<MutableList<Task>>(jsonText) // decodifica y almacena en una lista mutable de tareas
     } catch(e: Exception){
         mutableListOf() // si por lo que sea surje 1 error, devuelve la lista vacia
-    } // ¡ ¡ ¡ ¡ REVISAAAAAR ! ! ! !
+    }
 } // loadData

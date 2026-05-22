@@ -7,58 +7,67 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.AlertDialog
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun BaseDialog (
     title: String,
     textDismissButton: String = "Cancelar",
     onSave: () -> Unit,
-    onCancel: () -> Unit,
-    onChangeShowDialog: () -> Unit,
+    onClose: (String) -> Unit,
     content: @Composable () -> Unit,
     changeValueInputText: () -> Unit = { }
 ) {
-    changeValueInputText()
+    LaunchedEffect(Unit) { // hace que esto solo se ejecute 1 vez
+        changeValueInputText()
+    }
 
     AlertDialog(
-        onDismissRequest = { onChangeShowDialog() },
+        onDismissRequest = { onClose("") },
 
         title = { Text(text = title) },
 
         text = { content() },
 
         confirmButton = {
-            Button(
-                onClick = {
-                    onSave()
-                    onChangeShowDialog()
-                }
-            ) { Text(text = "Guardar") }
+            Button(onClick = { onSave() }) { Text(text = "Guardar") }
         }, // confirmButton
 
         dismissButton = {
-            Button(
-                onClick = {
-                    onCancel()
-                    onChangeShowDialog()
-                } // onClick
-            ) { Text(text = textDismissButton) }
+            Button(onClick = { onClose("DISMISS") }) { Text(text = textDismissButton) }
         } // dismissButton
     ) // AlertDialog
 } // DialogNewTask
 
 @Composable
+fun BaseDialog ( // tengo que hacer Overloading para que el BaseDialog funcione tambien para los filtros
+    title: String,
+    textDismissButton: String = "Cancelar",
+    onSave: () -> Unit,
+    onClose: () -> Unit,
+    content: @Composable () -> Unit,
+    changeValueInputText: () -> Unit = {}
+) {
+    BaseDialog(
+        title = title,
+        textDismissButton = textDismissButton,
+        onSave = onSave,
+        onClose = { _ -> onClose() }, // el _ significa que ignora el parametro String
+        content = content,
+        changeValueInputText = changeValueInputText
+    )
+} // BaseDialog
+
+@Composable
 fun DialogEdit(
     onSave: () -> Unit,
-    onCancel: () -> Unit,
-    onChangeDialog: () -> Unit,
+    onClose: () -> Unit,
     content: @Composable () -> Unit,
     changeValueInputText: () -> Unit
 ) {
     BaseDialog(
         onSave = onSave,
-        onCancel = onCancel,
-        onChangeShowDialog = onChangeDialog,
+        onClose = onClose,
         title = "Modificar Tarea",
         content = content,
         changeValueInputText = changeValueInputText
@@ -68,14 +77,12 @@ fun DialogEdit(
 @Composable
 fun DialogNewTask(
     onSave: () -> Unit,
-    onCancel: () -> Unit,
-    onChangeDialog: () -> Unit,
+    onClose: () -> Unit,
     content: @Composable () -> Unit
 ) {
     BaseDialog(
         onSave = onSave,
-        onCancel = onCancel,
-        onChangeShowDialog = onChangeDialog,
+        onClose = onClose,
         title = "Nueva tarea",
         content = content
     )
@@ -84,14 +91,12 @@ fun DialogNewTask(
 @Composable
 fun DialogFilter(
     onSave: () -> Unit,
-    onCancel: () -> Unit,
-    onChangeDialog: () -> Unit,
+    onClose: (String) -> Unit,
     content: @Composable () -> Unit
 ) {
     BaseDialog(
         onSave = onSave,
-        onCancel = onCancel,
-        onChangeShowDialog = onChangeDialog,
+        onClose = onClose,
         title = "Filtros",
         content = content,
         textDismissButton = "Mostrar todo"
